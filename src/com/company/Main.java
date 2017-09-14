@@ -29,6 +29,8 @@ public class Main {
                 System.out.println(current_order);
             }
             theater.helper();
+            System.out.println();
+            theater.helper2();
 
             reader.close();
         } catch (Exception e) {

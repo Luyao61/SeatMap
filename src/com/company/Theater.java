@@ -10,53 +10,75 @@ public class Theater {
     private int count;
     private boolean[][] seats_map;
 
+    // Todo: helper
+    private String[][] seat_helper;
+
     public Theater() {
         this.count = 0;
         this.seats_map = new boolean[10][20];
-    }
-
-    public int seatValue(int row, int seat) {
-        int x = (seat > 9) ? seat + 1 : seat;
-        x = x - 10;
-        int y = (row > 5) ? row + 1 : row;
-        y = 6 - y;
-
-        int max = ((0 - 10) * 2) * ((0 - 10) * 2) + (6 - 0) * (6 - 0);
-        return  max - ((2*x)*(2*x) + y * y);
+        this.seat_helper = new String[10][20];
     }
 
     public void processOrder(Order order) {
-        if (order.count + this.count > 200 || order.count == 0) {
+        if (order.count == 0 || order.count + this.count > 200) {
             return;
         }
+
         int max_value = 0;
-        int curr_count = 0;
         int current_value = 0;
-        Seat[] best_seats = new Seat[order.count];
-        for (int i = 0; i < 10; i++) {
-            current_value = 0;
-            curr_count = 0;
-            for (int j = 0; j < 20; j++) {
-                if (this.seats_map[i][j] == true) {
-                    current_value = 0;
-                    curr_count = 0;
-                    continue;
-                }
-                if (curr_count < order.count) {
-                    curr_count++;
-                    current_value += seatValue(i, j);
+
+        //PriorityQueue<Seat> heap = new PriorityQueue<>(
+        Comparator<Seat> comparator = new Comparator<Seat>() {
+            @Override
+            public int compare(Seat o1, Seat o2) {
+                if (o1.value == o2.value) {
+                    return 0;
+                } else if (o1.value > o2.value) {
+                    return -1;
                 } else {
-                    current_value += seatValue(i, j);
-                    current_value -= seatValue(i, j - order.count);
+                    return 1;
                 }
-                if (curr_count == order.count && current_value > max_value) {
-                    max_value = current_value;
-                    getSeats(i, j, order.count, best_seats);
-                    order.setSeats(best_seats);
+            }
+        };
+
+        for (int i = 0; i < 10; i++) {
+            PriorityQueue<Seat> heap = new PriorityQueue<>(comparator);
+            for (int j = 0; j < 20; j++) {
+                if (!this.seats_map[i][j]) {
+                    heap.offer(new Seat(i, j));
+                }
+                if (this.seats_map[i][j] || j == 19){
+                    if (heap.size() == 0) {
+                        continue;
+                    }
+                    Seat[] current_seats = new Seat[order.count];
+                    int m = 0;
+                    if (heap.size() > order.count) {
+                        for (m = 0; m < order.count; m++) {
+                            Seat temp = heap.poll();
+                            current_value += temp.value;
+                            current_seats[m] = temp;
+                        }
+                    } else {
+                        while (m < order.count && !heap.isEmpty()) {
+                            Seat temp = heap.poll();
+                            if (temp.x == i && temp.x + 1 < 10 && !this.seats_map[temp.x + 1][temp.y]) {
+                                heap.offer(new Seat(temp.x + 1, temp.y));
+                            }
+                            current_value += temp.value;
+                            current_seats[m++] = temp;
+                        }
+                    }
+                    if (m == order.count && current_value > max_value) {
+                        order.seats = current_seats;
+                        max_value = current_value;
+                    }
+                    current_value = 0;
+                    heap = new PriorityQueue<>(comparator);
                 }
             }
         }
-        bookSeats(best_seats);
+        bookSeats(order.seats, order.id);
     }
 
     private void getSeats(int row, int last_seat, int count, Seat[] output) {
@@ -67,10 +89,12 @@ public class Theater {
         }
     }
 
-    private void bookSeats(Seat[] seats_to_book) {
+    private void bookSeats(Seat[] seats_to_book, String order_id) {
         for (Seat seat : seats_to_book) {
             if (seat != null) {
                 this.seats_map[seat.x][seat.y] = true;
+                this.count++;
+                this.seat_helper[seat.x][seat.y] = order_id;
             }
         }
     }
@@ -83,6 +107,22 @@ public class Theater {
                     sb.append("*");
                 } else {
                     sb.append("O");
+                }
+                sb.append(" ");
+            }
+            sb.append("\n");
+        }
+        System.out.println(sb.toString());
+    }
+
+    public void helper2() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < this.seat_helper.length; i++) {
+            for (int j = 0; j < this.seat_helper[0].length; j++) {
+                if (seat_helper[i][j] != null) {
+                    sb.append(seat_helper[i][j]);
+                } else {
+                    sb.append("XXXX");
                 }
                 sb.append(" ");
             }
