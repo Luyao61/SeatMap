@@ -21,8 +21,8 @@ public class Theater {
         int y = (row > 5) ? row + 1 : row;
         y = 6 - y;
 
-        int max = ((0 - 10) * 2) * ((0 - 10) * 2) + (6 - 0) * (6 - 0);
-        return  max - ((2*x)*(2*x) + y * y);
+        int max = (0 - 10) * (0 - 10) + 2 * (6 - 0) * 2 * (6 - 0);
+        return  max - (x * x + 2 * y * 2 * y);
     }
 
     public void processOrder(Order order) {
@@ -71,6 +71,7 @@ public class Theater {
         for (Seat seat : seats_to_book) {
             if (seat != null) {
                 this.seats_map[seat.x][seat.y] = true;
+                this.count++;
             }
         }
     }
