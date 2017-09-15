@@ -5,15 +5,24 @@ package com.company;
  */
 public class Order {
     String id;
-    int count;
-    Seat[] seats;
+    int count;  // number of tickets in each Order
+    Seat[] seats;   // Seat assignments
 
+    /**
+     * Constructor for Order
+     * @param id order id
+     * @param count number of tickets in each Order
+     */
     public Order(String id, int count) {
         this.id = id;
         this.count = count;
         this.seats = new Seat[count];
     }
 
+    /**
+     * Copy seats
+     * @param seats
+     */
     public void setSeats(Seat[] seats) {
         for (int i = 0; i < seats.length; i++) {
             this.seats[i] = seats[i];

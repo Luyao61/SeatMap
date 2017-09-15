@@ -2,9 +2,7 @@ package com.company;
 
 import com.sun.org.apache.xpath.internal.operations.Or;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,26 +13,28 @@ public class Main {
         if (args.length == 0) {
             System.out.println("Please enter the input file path.");
         }
+        // create input and output file path
         String path = args[0];
-        System.out.println(path);
+        String output_path = path.split("\\.")[0] + "_out.txt";
+
         BufferedReader reader = new BufferedReader(new FileReader(path));
+        BufferedWriter output_file = new BufferedWriter(new FileWriter(output_path, false));
         try {
             String line;
             Theater theater = new Theater();
             while ((line = reader.readLine()) != null) {
-                // Todo
                 String[] ln = line.split("\\s+");
                 Order current_order = new Order(ln[0], Integer.parseInt(ln[1]));
                 theater.processOrder(current_order);
-                System.out.println(current_order);
-            }
-            theater.helper();
 
-            reader.close();
+                output_file.write(current_order.toString() + "\n");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             reader.close();
+            output_file.close();
         }
+        System.out.println(output_path);
     }
 }
