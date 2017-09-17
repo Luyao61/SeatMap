@@ -16,6 +16,13 @@ public class Seat {
         return String.format("%c%d", (char)('A' + x), y + 1);
     }
 
+    /**
+     * calculate the seat value based on a preset origin;
+     * col has more weight than row
+     * @param row row number
+     * @param seat seat number
+     * @return positive number of seat value;
+     */
     public int seatValue(int row, int seat) {
         int x = (seat > 9) ? seat + 1 : seat;
         x = x - 10;

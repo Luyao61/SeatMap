@@ -7,18 +7,27 @@ import java.util.PriorityQueue;
  * Created by LuyaoMBP on 9/12/17.
  */
 public class Theater {
-    private int count;
-    private boolean[][] seats_map;
+    private int count;  // count the booked seats in each theater
+    private boolean[][] seats_map;  // 2d seat map to mark if the seat is taken
 
-    // Todo: helper
+    // Help visualize seats; mark seats with order id
     private String[][] seat_helper;
 
+    // Theater constructor
     public Theater() {
         this.count = 0;
         this.seats_map = new boolean[10][20];
         this.seat_helper = new String[10][20];
     }
 
+    /**
+     * main function to process each order;
+     * It will use a bfs mechanism to find best seats on each row
+     * and set the seats of each order;
+     * If the available seats are not enough to accommodate current order,
+     * it will generate seats on the next row to see if there is a match
+     * @param order the order to be processed
+     */
     public void processOrder(Order order) {
         if (order.count == 0 || order.count + this.count > 200) {
             return;
@@ -27,7 +36,7 @@ public class Theater {
         int max_value = 0;
         int current_value = 0;
 
-        //PriorityQueue<Seat> heap = new PriorityQueue<>(
+        // comparator for seat value
         Comparator<Seat> comparator = new Comparator<Seat>() {
             @Override
             public int compare(Seat o1, Seat o2) {
@@ -45,14 +54,17 @@ public class Theater {
             PriorityQueue<Seat> heap = new PriorityQueue<>(comparator);
             for (int j = 0; j < 20; j++) {
                 if (!this.seats_map[i][j]) {
+                    // if the seat is not taken, put this seat into the heap;
                     heap.offer(new Seat(i, j));
                 }
+                // find top k best seats when reach end of row or
                 if (this.seats_map[i][j] || j == 19){
                     if (heap.size() == 0) {
                         continue;
                     }
                     Seat[] current_seats = new Seat[order.count];
                     int m = 0;
+                    // if one row has enough seat to accommodate the order
                     if (heap.size() > order.count) {
                         for (m = 0; m < order.count; m++) {
                             Seat temp = heap.poll();
@@ -60,8 +72,11 @@ public class Theater {
                             current_seats[m] = temp;
                         }
                     } else {
+                        // if available seats on the current row is not enough for this order
+                        // expand this seat and generate the seat behind it
                         while (m < order.count && !heap.isEmpty()) {
                             Seat temp = heap.poll();
+                            // put seat in the next row into the heap
                             if (temp.x == i && temp.x + 1 < 10 && !this.seats_map[temp.x + 1][temp.y]) {
                                 heap.offer(new Seat(temp.x + 1, temp.y));
                             }
@@ -70,7 +85,8 @@ public class Theater {
                         }
                     }
                     if (m == order.count && current_value > max_value) {
-                        order.seats = current_seats;
+                        // if we find the better seats, update seats and max_value
+                        order.setSeats(current_seats);
                         max_value = current_value;
                     }
                     current_value = 0;
@@ -81,17 +97,10 @@ public class Theater {
         bookSeats(order.seats, order.id);
     }
 
-    private void getSeats(int row, int last_seat, int count, Seat[] output) {
-        for (int i = 0; i < count; i++) {
-            int seat = last_seat - count + 1 + i;
-            // this.seats[row][seat] = true;
-            output[i] = new Seat(row, seat);
-        }
-    }
-
     private void bookSeats(Seat[] seats_to_book, String order_id) {
         for (Seat seat : seats_to_book) {
             if (seat != null) {
+                // mark seats as taken
                 this.seats_map[seat.x][seat.y] = true;
                 this.count++;
                 this.seat_helper[seat.x][seat.y] = order_id;
@@ -99,6 +108,7 @@ public class Theater {
         }
     }
 
+    // helper method to print out seat
     public void helper() {
         StringBuilder sb = new StringBuilder();
         for (boolean[] row : this.seats_map) {
@@ -115,6 +125,7 @@ public class Theater {
         System.out.println(sb.toString());
     }
 
+    // helper method to print out seat map, seat is filled with order id;
     public void helper2() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.seat_helper.length; i++) {
