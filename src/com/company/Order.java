@@ -21,7 +21,7 @@ public class Order {
 
     /**
      * Copy seats
-     * @param seats
+     * @param seats Array of seats to be copied;
      */
     public void setSeats(Seat[] seats) {
         for (int i = 0; i < seats.length; i++) {

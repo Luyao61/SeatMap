@@ -1,7 +1,5 @@
 package com.company;
 
-import com.sun.org.apache.xpath.internal.operations.Or;
-
 import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,9 +20,11 @@ public class Main {
         try {
             String line;
             Theater theater = new Theater();
+            // read the input file line by line
             while ((line = reader.readLine()) != null) {
                 String[] ln = line.split("\\s+");
                 Order current_order = new Order(ln[0], Integer.parseInt(ln[1]));
+
                 theater.processOrder(current_order);
 
                 output_file.write(current_order.toString() + "\n");
