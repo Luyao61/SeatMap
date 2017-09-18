@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Main {
-    private static List<Order> ans = new LinkedList<>();
 
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {

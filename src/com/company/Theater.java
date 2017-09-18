@@ -7,38 +7,21 @@ import java.util.PriorityQueue;
  * Created by LuyaoMBP on 9/12/17.
  */
 public class Theater {
-    private int count;  // count the booked seats in each theater
-    private boolean[][] seats_map;  // 2d seat map to mark if the seat is taken
+    int count;  // count the booked seats in each theater
+    boolean[][] seats_map;  // 2d seat map to mark if the seat is taken
 
     public Theater() {
         this.count = 0;
         this.seats_map = new boolean[10][20];
     }
-
-    /**
-     * calculate the seat value based on a preset origin;
-     * col has more weight than row
-     * @param row row number
-     * @param seat seat number
-     * @return positive number of seat value;
-     */
-    public int seatValue(int row, int seat) {
-        int x = (seat > 9) ? seat + 1 : seat;
-        x = x - 10;
-        int y = (row > 5) ? row + 1 : row;
-        y = 6 - y;
-
-        int max = (0 - 10) * (0 - 10) + 2 * (6 - 0) * 2 * (6 - 0);
-        return  max - (x * x + 2 * y * 2 * y);
-    }
-
+    
     /**
      * main function to process each order;
      * It will use a sliding window mechanism to find best seats on each row
      * and set the seats of each order;
      * @param order the order to be processed
      */
-    public void processOrder(Order order) {
+    public void processOrder(Order order) throws MyInvalidInputException {
         if (order.count + this.count > 200 || order.count == 0) {
             return;
         }
@@ -59,11 +42,11 @@ public class Theater {
                 // expand the window size to order size
                 if (curr_count < order.count) {
                     curr_count++;
-                    current_value += seatValue(i, j);
+                    current_value += Seat.calculateSeatValue(i, j);
                 } else {
                     // slide the window
-                    current_value += seatValue(i, j);
-                    current_value -= seatValue(i, j - order.count);
+                    current_value += Seat.calculateSeatValue(i, j);
+                    current_value -= Seat.calculateSeatValue(i, j - order.count);
                 }
                 if (curr_count == order.count && current_value > max_value) {
                     // if we find the better seats, update seats and max_value
@@ -77,14 +60,17 @@ public class Theater {
     }
 
     // create a array of seats
-    private void getSeats(int row, int last_seat, int count, Seat[] output) {
+    public void getSeats(int row, int last_seat, int count, Seat[] output) throws MyInvalidInputException {
+        if (count > last_seat + 1) {
+            throw new MyInvalidInputException("count must be less than or equals to last_seat + 1");
+        }
         for (int i = 0; i < count; i++) {
             int seat = last_seat - count + 1 + i;
             output[i] = new Seat(row, seat);
         }
     }
 
-    private void bookSeats(Seat[] seats_to_book) {
+    public void bookSeats(Seat[] seats_to_book) {
         for (Seat seat : seats_to_book) {
             if (seat != null) {
                 // mark seats as taken

@@ -1,5 +1,7 @@
 package com.company;
 
+import java.lang.*;
+
 /**
  * Created by LuyaoMBP on 9/13/17.
  */
@@ -13,7 +15,10 @@ public class Order {
      * @param id order id
      * @param count number of tickets in each Order
      */
-    public Order(String id, int count) {
+    public Order(String id, int count) throws MyInvalidInputException {
+        if (id == null || id.length() == 0 || count < 0) {
+            throw new MyInvalidInputException("invalid input");
+        }
         this.id = id;
         this.count = count;
         this.seats = new Seat[count];
@@ -24,6 +29,9 @@ public class Order {
      * @param seats Array of seats to be copied;
      */
     public void setSeats(Seat[] seats) {
+        if (seats == null || seats.length != this.count) {
+            throw new IllegalArgumentException("invalid argument seats");
+        }
         for (int i = 0; i < seats.length; i++) {
             this.seats[i] = seats[i];
         }
